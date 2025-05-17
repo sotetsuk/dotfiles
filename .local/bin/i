@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Ensure `gh` and `fzf` are installed
+if ! command -v gh &> /dev/null
+then
+    echo "gh (GitHub CLI) could not be found. Please install it first."
+    exit
+fi
+
+if ! command -v fzf &> /dev/null
+then
+    echo "fzf could not be found. Please install it first."
+    exit
+fi
+
+# Fetch pull requests data
+issues=$(gh issue list --limit 100 --json number,title,updatedAt --jq '.[] | [.number, .title, .updatedAt] | @tsv')
+
+# Print issues in a table-like format using `column`
+# formatted_issues=$(echo -e "Number\tTitle\tHeadRefName\n$issues" | column -t -s $'\t')
+formatted_issues=$(echo -e "\n$issues" | column -t -s $'\t')
+
+# Use fzf to select the issue
+selected_issue=$(echo -e "$formatted_issues" | fzf --height=20% --border --ansi --prompt="Select issue: ")
+
+# If an issue is selected
+if [ -n "$selected_issue" ]; then
+    # Extract issue number using awk to handle column formatting
+    issue_number=$(echo "$selected_issue" | awk '{print $1}')
+
+    gh issue view -c "$issue_number"
+else
+    echo "No issue selected. Exiting."
+fi

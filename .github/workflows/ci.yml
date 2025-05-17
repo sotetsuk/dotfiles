@@ -1,0 +1,24 @@
+name: ci
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run install.sh
+        run: |
+            ./pre-install.sh
+            ./install.sh
+
+      - name: Run tests.sh
+        run: |
+            zsh ./tests.sh

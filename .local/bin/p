@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Ensure `gh` and `fzf` are installed
+if ! command -v gh &> /dev/null
+then
+    echo "gh (GitHub CLI) could not be found. Please install it first."
+    exit
+fi
+
+if ! command -v fzf &> /dev/null
+then
+    echo "fzf could not be found. Please install it first."
+    exit
+fi
+
+# Fetch pull requests data
+prs=$(gh pr list --limit 100 --json number,title,headRefName --jq '.[] | [.number, .title, .headRefName] | @tsv')
+
+# Print PRs in a table-like format using `column`
+# formatted_prs=$(echo -e "Number\tTitle\tHeadRefName\n$prs" | column -t -s $'\t')
+formatted_prs=$(echo -e "\n$prs" | column -t -s $'\t')
+
+# Use fzf to select the PR
+selected_pr=$(echo -e "$formatted_prs" | fzf --height=20% --border --ansi --tac --prompt="Select PR: ")
+
+# If a PR is selected
+if [ -n "$selected_pr" ]; then
+    # Extract PR number using awk to handle column formatting
+    pr_number=$(echo "$selected_pr" | awk '{print $1}')
+
+    # Checkout the PR
+    echo "Checking out PR #$pr_number"
+    gh pr checkout "$pr_number" -R "$REPO"
+else
+    echo "No PR selected. Exiting."
+fi

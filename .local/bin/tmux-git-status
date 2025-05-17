@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd `tmux display-message -p -F "#{pane_current_path}"`
+has_changed=$(git status | grep "Changes not staged for commit")
+has_staged=$(git status | grep "Changes to be committed")
+[[ -n ${has_changed} || -n ${has_staged} ]] && echo "*"

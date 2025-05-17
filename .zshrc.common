@@ -1,0 +1,108 @@
+export LANGUAGE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+
+##########################################
+# Variables
+##########################################
+
+export PATH="$HOME/.local/bin:$PATH"
+export EDITOR=vi
+
+##########################################
+# Auto-activate virtualenv
+##########################################
+# ref) https://stackoverflow.com/questions/45216663/how-to-automatically-activate-virtualenvs-when-cding-into-a-directory
+
+# function cd() {
+#     builtin cd $1
+#     dir=$(pwd)
+#     [[ -n "$VIRTUAL_ENV" ]] && which deactivate &>/dev/null && deactivate
+#     while true; do
+#         [[ -d venv ]] && source venv/bin/activate && break
+#         [[ -d .venv ]] && source .venv/bin/activate && break
+#         [[ $(pwd) == "/" ]] && break
+#         builtin cd ..
+#     done
+#     builtin cd ${dir}
+# }
+
+##########################################
+# git alias
+##########################################
+
+function gs() {
+  local branches branch
+  branches=$(git branch -a -vv | grep -v HEAD | sed "s/remotes\/origin\///g") &&
+  branch=$(echo "$branches" | fzf +m) &&
+  git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+}
+
+function gsm() {
+  if [[ $(git branch | grep master) ]]; then
+    git checkout master
+  else
+    git checkout main
+  fi
+}
+
+function gpl() {
+  br=$(git branch | grep "*" | awk '{print $2}')
+  git pull origin $br
+} 
+
+function gps() {
+  br=$(git branch | grep "*" | awk '{print $2}')
+  git push -u origin $br
+}
+
+alias gco="git checkout"
+
+alias gst="git status"
+
+alias gcm="git safe-commit -m"
+
+alias gad="git add"
+alias gadd="git add"
+
+alias gdif="git diff"
+alias gdiff="git diff"
+
+alias ic="imgcat"
+
+alias ai="aichat"
+
+alias v="nvim"
+alias n="nvim"
+
+##########################################
+# Zsh hooks
+##########################################
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd refresh_tmux
+
+function refresh_tmux() {
+    [[ -n "$TMUX"  ]] && tmux refresh-client -S
+}
+
+##########################################
+# Clipboard
+##########################################
+
+if command -v pbcopy 1>/dev/null 2>&1; then
+    alias C="pbcopy"
+else
+    alias C="xsel -bi"
+fi
+
+if command -v open 1>/dev/null 2>&1; then
+    alias O="open"
+else
+    alias O="xdg-open"
+fi
+
+##########################################
+# zoxide
+##########################################
+
+eval "$(zoxide init zsh)"

@@ -1,0 +1,32 @@
+[core]
+	editor = vi
+	pager = diff-so-fancy | less --tabs=4 -RFX
+[alias]
+	sw = switch
+	br = branch
+	co = checkout
+	safe-commit = "!f() { \n  if [ -z \"$(git config --get user.name)\" ] || [ -z \"$(git config --get user.email)\" ]; then \n    echo \"Error: Git user.name or user.email is not set.\"; \n    echo \"Please configure them using:\"; \n    echo \"  git config --global user.name \\\"Your Name\\\"\"; \n    echo \"  git config --global user.email \\\"your.email@example.com\\\"\"; \n    exit 1; \n  fi; \n  git commit \"$@\"; \n}; f"
+[push]
+	default = current
+[merge]
+    ff = false
+[pull]
+    ff = only
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[interactive]
+	diffFilter = diff-so-fancy
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = red bold 52
+	newNormal = green bold
+	newHighlight = green bold 22
+[color "diff"]
+	meta = yellow
+	frag = magenta bold
+	commit = yellow bold
+	old = red bold
+	new = green bold

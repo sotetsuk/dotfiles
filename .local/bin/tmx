@@ -1,0 +1,22 @@
+#!/bin/bash
+set -eu
+
+which fzf
+
+function new_session() {
+  echo "Session name? [default=timestamp]"
+  read X && [[ -n ${X} ]] && tmux new -s ${X} && return
+  X=$(date +%Y-%m-%dT%H:%M:%S)
+  tmux new -s ${X}
+}
+
+if [[ -z $(tmux ls 2>/dev/null) ]]; then 
+    new_session
+else 
+  TMUX_SESSION=$(printf "New\n$(tmux ls)" | fzf | cut -d: -f1); 
+    if [[ $TMUX_SESSION = "New" ]]; then 
+      new_session
+    else 
+      tmux attach -t $TMUX_SESSION; 
+    fi; 
+fi
