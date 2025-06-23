@@ -30,3 +30,6 @@
 	commit = yellow bold
 	old = red bold
 	new = green bold
+[user]
+	name = Sotetsu Koyamada
+	email = koyamada-s@sys.i.kyoto-u.ac.jp
