@@ -57,6 +57,7 @@ dotfiles="
 .local/bin/tmux-git-status
 .local/bin/p
 .local/bin/i
+.local/bin/jiggle
 "
 
 mkdir -p ~/.local/bin
