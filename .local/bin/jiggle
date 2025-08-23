@@ -1,0 +1,20 @@
+#!/usr/bin/swift
+import Foundation
+import CoreGraphics
+
+func jiggle() {
+    let current = CGEvent(source: nil)?.location ?? .zero
+    CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
+            mouseCursorPosition: CGPoint(x: current.x + 1, y: current.y),
+            mouseButton: .left)?.post(tap: .cghidEventTap)
+    usleep(20000) // 20ms
+    CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
+            mouseCursorPosition: current,
+            mouseButton: .left)?.post(tap: .cghidEventTap)
+}
+
+let minutes = CommandLine.arguments.dropFirst().first.flatMap(Double.init) ?? 3.0
+while true {
+    jiggle()
+    Thread.sleep(forTimeInterval: minutes * 60)
+}
