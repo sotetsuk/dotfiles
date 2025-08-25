@@ -40,36 +40,13 @@ endif
 " Manage plugins
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
 call plug#begin('~/.vim/plugged')
-" Plug 'cohama/lexima.vim'
-" Plug 'jiangmiao/auto-pairs'
-" LSP and auto-completion
-" Plug 'prabirshrestha/vim-lsp'
-" Plug 'mattn/vim-lsp-settings'
-" Plug 'prabirshrestha/asyncomplete.vim'
-" Plug 'prabirshrestha/asyncomplete-lsp.vim'
-" Color theme
+" color theme
 Plug 'sickill/vim-monokai', {'do': 'mkdir -p ~/.vim/colors && cp ~/.vim/plugged/vim-monokai/colors/* ~/.vim/colors/'}
-" fzf
-" Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-" Plug 'junegunn/fzf.vim'
 call plug#end()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Plugin variables
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
-" NERDTree
-" nmap <C-n> :NERDTreeToggle<CR>
-" let g:NERDTreeQuitOnOpen = 1
-
-" LSP
-" let g:lsp_diagnostics_echo_cursor = 1  " show dianostics message on bar
-" autocmd BufWritePre <buffer> LspDocumentFormatSync  " apply format on save
-" :command F LspDocumentFormatSync  " alias for applying format
-" let g:lsp_diagnostics_signs_error = {'text': '✗‣'}
-" let g:lsp_diagnostics_signs_warning = {'text': ' ‣'}
-" let g:lsp_diagnostics_signs_information = {'text': ' ‣'}
-" let g:lsp_diagnostics_signs_hint = {'text': ' ‣'}
-
-" Color theme
+" color theme
 silent! colorscheme monokai
 
