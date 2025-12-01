@@ -26,6 +26,8 @@ augroup fileTypeIndent
     autocmd BufNewFile,BufRead *.hpp setlocal tabstop=2 softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufRead *.tsv setlocal noexpandtab
 augroup END
+" vim上でコピーした内容をシステムのクリップボードに連携
+set clipboard+=unnamed
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Install vim-plug
