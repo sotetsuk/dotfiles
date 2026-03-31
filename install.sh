@@ -50,6 +50,9 @@ dotfiles="
 .ideavimrc
 .tmux.conf
 .zshrc.common
+.npmrc
+.bunfig.toml
+.config/uv/uv.toml
 .local/bin/tmx
 .local/bin/tmux-git-curr-branch
 .local/bin/tmux-git-status
@@ -58,7 +61,7 @@ dotfiles="
 .local/bin/jiggle
 "
 
-mkdir -p ~/.local/bin
+mkdir -p ~/.local/bin ~/.config/uv
 for dotfile in ${dotfiles}; do
     ln -sfnv $(pwd)/${dotfile} ~/${dotfile}
 done
