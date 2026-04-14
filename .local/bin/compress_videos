@@ -1,0 +1,75 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+  echo "Usage: $(basename "$0") <input_dir> <output_dir> [options]"
+  echo ""
+  echo "Options:"
+  echo "  -c, --crf NUM      CRF value (default: 28, higher=smaller)"
+  echo "  -r, --fps NUM      Frame rate (default: 15)"
+  echo "  -e, --ext EXT      Input extension to glob (default: mov)"
+  echo "  -h, --help         Show this help"
+  exit 0
+}
+
+# Defaults
+CRF=28
+FPS=15
+EXT="mov"
+
+# Parse positional args
+[[ $# -lt 2 ]] && { usage; }
+INPUT_DIR="$1"; shift
+OUTPUT_DIR="$1"; shift
+
+# Parse options
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -c|--crf) CRF="$2"; shift 2 ;;
+    -r|--fps) FPS="$2"; shift 2 ;;
+    -e|--ext) EXT="$2"; shift 2 ;;
+    -h|--help) usage ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
+# Validate
+if ! command -v ffmpeg &>/dev/null; then
+  echo "Error: ffmpeg not found. Install with: brew install ffmpeg"
+  exit 1
+fi
+
+if [[ ! -d "$INPUT_DIR" ]]; then
+  echo "Error: input directory not found: $INPUT_DIR"
+  exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+# Find and compress
+count=0
+shopt -s nullglob
+for f in "$INPUT_DIR"/*."$EXT"; do
+  name=$(basename "$f" ".$EXT")
+  out="$OUTPUT_DIR/${name}.mp4"
+
+  if [[ -f "$out" ]]; then
+    echo "Skip (already exists): $out"
+    continue
+  fi
+
+  echo "Compressing: $(basename "$f")"
+  ffmpeg -i "$f" \
+    -c:v libx264 -crf "$CRF" -preset slow -r "$FPS" \
+    -c:a aac -b:a 96k \
+    -y "$out" </dev/null 2>&1 | tail -1
+
+  input_size=$(stat -f%z "$f" 2>/dev/null || stat -c%s "$f" 2>/dev/null)
+  output_size=$(stat -f%z "$out" 2>/dev/null || stat -c%s "$out" 2>/dev/null)
+  ratio=$((100 * output_size / input_size))
+  echo "  Done: ${ratio}% of original size"
+  ((count++))
+done
+
+echo ""
+echo "Compressed $count file(s)."

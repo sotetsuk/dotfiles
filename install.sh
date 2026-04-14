@@ -59,6 +59,7 @@ dotfiles="
 .local/bin/p
 .local/bin/i
 .local/bin/jiggle
+.local/bin/compress_videos
 "
 
 mkdir -p ~/.local/bin ~/.config/uv
