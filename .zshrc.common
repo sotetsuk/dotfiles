@@ -107,25 +107,3 @@ fi
 
 eval "$(zoxide init zsh)"
 
-##########################################
-# Create badge for asking AI
-##########################################
-
-askbadge() {
-  local prompt="$1"
-  if [ -z "$prompt" ]; then
-    echo "使い方: askbadge \"質問内容\" [ラベル]"
-    echo "例:    askbadge \"Morgenについて教えて\" \"Morgenとは?\""
-    return 1
-  fi
-  local label="${2:-AIに聞く}"
-  local encoded
-  encoded=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$prompt")
-  local label_enc
-  label_enc=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$label")
-
-  cat <<EOF
-[![Ask ChatGPT](https://custom-icon-badges.demolab.com/badge/ChatGPTに聞く-74aa9c?style=for-the-badge&logo=openai&logoColor=white)](https://chatgpt.com/?q=${encoded})
-[![Ask Claude](https://img.shields.io/badge/Claudeに聞く-D97757?style=for-the-badge&logo=claude&logoColor=white)](https://claude.ai/new?q=${encoded})
-EOF
-}
