@@ -17,20 +17,58 @@ fi
 prs=$(gh pr list --limit 100 --json number,title,headRefName --jq '.[] | [.number, .title, .headRefName] | @tsv')
 
 # Print PRs in a table-like format using `column`
-# formatted_prs=$(echo -e "Number\tTitle\tHeadRefName\n$prs" | column -t -s $'\t')
 formatted_prs=$(echo -e "\n$prs" | column -t -s $'\t')
 
-# Use fzf to select the PR
-selected_pr=$(echo -e "$formatted_prs" | fzf --height=20% --border --ansi --tac --prompt="Select PR: ")
+# Use fzf to select the PR (newest PRs appear at the top, prompt at top)
+selected_pr=$(echo -e "$formatted_prs" | fzf --height=~15 --layout=reverse --border --ansi --prompt="Select PR: ")
 
-# If a PR is selected
-if [ -n "$selected_pr" ]; then
-    # Extract PR number using awk to handle column formatting
-    pr_number=$(echo "$selected_pr" | awk '{print $1}')
-
-    # Checkout the PR
-    echo "Checking out PR #$pr_number"
-    gh pr checkout "$pr_number" -R "$REPO"
-else
+if [ -z "$selected_pr" ]; then
     echo "No PR selected. Exiting."
+    exit
 fi
+
+# Extract PR number using awk to handle column formatting
+pr_number=$(echo "$selected_pr" | awk '{print $1}')
+
+# Build the action menu
+actions=$(cat <<'EOF'
+view	Show PR details in terminal
+view-web	Open PR in browser
+checkout	Check out the PR locally
+diff	Show diff
+checks	Show CI checks status
+comment	Add a comment
+review	Submit a review
+ready	Mark draft PR as ready for review
+merge	Merge the PR
+close	Close the PR
+reopen	Reopen the PR
+edit	Edit title/body
+EOF
+)
+formatted_actions=$(echo "$actions" | column -t -s $'\t')
+
+selected_action=$(echo "$formatted_actions" | fzf --height=~15 --layout=reverse --border --ansi --prompt="Action for PR #$pr_number: ")
+
+if [ -z "$selected_action" ]; then
+    echo "No action selected. Exiting."
+    exit
+fi
+
+action=$(echo "$selected_action" | awk '{print $1}')
+
+case "$action" in
+    view)      gh pr view     "$pr_number" ;;
+    view-web)  gh pr view     "$pr_number" --web ;;
+    checkout)  gh pr checkout "$pr_number" ;;
+    diff)      gh pr diff     "$pr_number" ;;
+    checks)    gh pr checks   "$pr_number" ;;
+    comment)   gh pr comment  "$pr_number" ;;
+    review)    gh pr review   "$pr_number" ;;
+    ready)     gh pr ready    "$pr_number" ;;
+    merge)     gh pr merge    "$pr_number" ;;
+    close)     gh pr close    "$pr_number" ;;
+    reopen)    gh pr reopen   "$pr_number" ;;
+    edit)      gh pr edit     "$pr_number" ;;
+    *)         echo "Unknown action: $action"; exit 1 ;;
+esac

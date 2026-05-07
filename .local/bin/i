@@ -13,22 +13,64 @@ then
     exit
 fi
 
-# Fetch pull requests data
+# Fetch issues data
 issues=$(gh issue list --limit 100 --json number,title,updatedAt --jq '.[] | [.number, .title, .updatedAt] | @tsv')
 
 # Print issues in a table-like format using `column`
-# formatted_issues=$(echo -e "Number\tTitle\tHeadRefName\n$issues" | column -t -s $'\t')
 formatted_issues=$(echo -e "\n$issues" | column -t -s $'\t')
 
-# Use fzf to select the issue
-selected_issue=$(echo -e "$formatted_issues" | fzf --height=20% --border --ansi --prompt="Select issue: ")
+# Use fzf to select the issue (newest issues appear at the top, prompt at top)
+selected_issue=$(echo -e "$formatted_issues" | fzf --height=~15 --layout=reverse --border --ansi --prompt="Select issue: ")
 
-# If an issue is selected
-if [ -n "$selected_issue" ]; then
-    # Extract issue number using awk to handle column formatting
-    issue_number=$(echo "$selected_issue" | awk '{print $1}')
-
-    gh issue view -c "$issue_number"
-else
+if [ -z "$selected_issue" ]; then
     echo "No issue selected. Exiting."
+    exit
 fi
+
+# Extract issue number using awk to handle column formatting
+issue_number=$(echo "$selected_issue" | awk '{print $1}')
+
+# Build the action menu
+actions=$(cat <<'EOF'
+view-comments	Show issue with comments
+view	Show issue without comments
+view-web	Open issue in browser
+comment	Add a comment
+edit	Edit title/body/labels
+develop	Create a linked branch
+close	Close the issue
+reopen	Reopen the issue
+pin	Pin the issue
+unpin	Unpin the issue
+lock	Lock the conversation
+unlock	Unlock the conversation
+delete	Delete the issue
+EOF
+)
+formatted_actions=$(echo "$actions" | column -t -s $'\t')
+
+selected_action=$(echo "$formatted_actions" | fzf --height=~15 --layout=reverse --border --ansi --prompt="Action for issue #$issue_number: ")
+
+if [ -z "$selected_action" ]; then
+    echo "No action selected. Exiting."
+    exit
+fi
+
+action=$(echo "$selected_action" | awk '{print $1}')
+
+case "$action" in
+    view-comments) gh issue view    "$issue_number" -c ;;
+    view)          gh issue view    "$issue_number" ;;
+    view-web)      gh issue view    "$issue_number" --web ;;
+    comment)       gh issue comment "$issue_number" ;;
+    edit)          gh issue edit    "$issue_number" ;;
+    develop)       gh issue develop "$issue_number" ;;
+    close)         gh issue close   "$issue_number" ;;
+    reopen)        gh issue reopen  "$issue_number" ;;
+    pin)           gh issue pin     "$issue_number" ;;
+    unpin)         gh issue unpin   "$issue_number" ;;
+    lock)          gh issue lock    "$issue_number" ;;
+    unlock)        gh issue unlock  "$issue_number" ;;
+    delete)        gh issue delete  "$issue_number" ;;
+    *)             echo "Unknown action: $action"; exit 1 ;;
+esac
