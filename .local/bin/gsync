@@ -1,0 +1,79 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: gsync [REPO_PATH]
+
+Run a simple Git sync flow for a repository:
+  1. stage all changes
+  2. commit staged changes when present
+  3. pull with rebase
+  4. push
+
+Environment:
+  GSYNC_MESSAGE   Commit message template.
+                  Default: sync: YYYY-MM-DD HH:mm:ss
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+repo_path="${1:-.}"
+
+if [[ ! -d "$repo_path" ]]; then
+  echo "Not a directory: $repo_path" >&2
+  exit 1
+fi
+
+git_root=$(git -C "$repo_path" rev-parse --show-toplevel 2>/dev/null) || {
+  echo "Not inside a Git repository: $repo_path" >&2
+  exit 1
+}
+
+git_dir=$(git -C "$git_root" rev-parse --absolute-git-dir)
+branch=$(git -C "$git_root" branch --show-current)
+
+if [[ -z "$branch" ]]; then
+  echo "Detached HEAD is not supported for sync." >&2
+  exit 1
+fi
+
+if [[ -d "$git_dir/rebase-merge" || -d "$git_dir/rebase-apply" || -f "$git_dir/MERGE_HEAD" ]]; then
+  echo "A merge or rebase is already in progress in $git_root." >&2
+  exit 1
+fi
+
+if ! git -C "$git_root" rev-parse --abbrev-ref --symbolic-full-name "@{u}" >/dev/null 2>&1; then
+  echo "Current branch '$branch' has no upstream. Set one first, for example:" >&2
+  echo "  git -C '$git_root' push -u origin '$branch'" >&2
+  exit 1
+fi
+
+commit_message="${GSYNC_MESSAGE:-sync: $(date '+%Y-%m-%d %H:%M:%S')}"
+
+echo "Syncing Git repository: $git_root"
+
+git -C "$git_root" add -A
+
+if ! git -C "$git_root" diff --cached --quiet; then
+  git -C "$git_root" commit -m "$commit_message"
+else
+  echo "No local changes to commit."
+fi
+
+if ! git -C "$git_root" pull --rebase --autostash; then
+  cat >&2 <<'EOF'
+Pull failed. Resolve the Git conflict, then continue with:
+  git rebase --continue
+  git push
+EOF
+  exit 1
+fi
+
+git -C "$git_root" push
+
+echo "Git sync complete."
