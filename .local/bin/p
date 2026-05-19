@@ -66,7 +66,7 @@ case "$action" in
     comment)   gh pr comment  "$pr_number" ;;
     review)    gh pr review   "$pr_number" ;;
     ready)     gh pr ready    "$pr_number" ;;
-    merge)     gh pr merge    "$pr_number" ;;
+    merge)     gh pr merge -d "$pr_number" ;;
     close)     gh pr close    "$pr_number" ;;
     reopen)    gh pr reopen   "$pr_number" ;;
     edit)      gh pr edit     "$pr_number" ;;
