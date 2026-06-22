@@ -24,9 +24,11 @@ fi
 
 root="$(git rev-parse --show-toplevel)"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# claude-worktree-history.sh is an internal helper for cw, not a public command,
-# so it lives in libexec (sibling of bin) rather than on PATH.
+# claude-worktree-history.sh / claude-worktree-include.sh are internal helpers
+# for cw, not public commands, so they live in libexec (sibling of bin) rather
+# than on PATH.
 history_tool="$script_dir/../libexec/claude-worktree-history.sh"
+include_tool="$script_dir/../libexec/claude-worktree-include.sh"
 dir="$root/.claude/worktrees/$name"
 branch="worktree-$name"
 claude_status=0
@@ -62,6 +64,11 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+
+# Copy gitignored paths from .worktreeinclude (e.g. installed skills) into the
+# worktree; `git worktree add` checks out tracked files only. Independent of the
+# history seed/finish below.
+"$include_tool" "$root" "$dir"
 
 "$history_tool" seed "$root" "$dir"
 
