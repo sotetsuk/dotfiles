@@ -38,7 +38,7 @@ fi
 
 # install packages using brew
 # * ripgrep is required by kickstart.nvim
-brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy 2>/dev/null
+brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy jq 2>/dev/null
 
 echo "#############################################################################"
 echo "# Set dotfiles"
@@ -62,9 +62,11 @@ dotfiles="
 .local/bin/compress_videos
 .local/bin/m2h
 .local/bin/gsync
+.local/bin/cw
+.local/libexec/claude-worktree-history.sh
 "
 
-mkdir -p ~/.local/bin ~/.config/uv
+mkdir -p ~/.local/bin ~/.local/libexec ~/.config/uv
 for dotfile in ${dotfiles}; do
     ln -sfnv $(pwd)/${dotfile} ~/${dotfile}
 done

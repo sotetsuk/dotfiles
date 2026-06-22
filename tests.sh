@@ -18,6 +18,7 @@ which xz
 which gh
 which xsel
 which pygmentize
+which jq
 
 # Installed w/o package manager
 which uv
@@ -28,6 +29,7 @@ which it2ul
 
 # Original commands
 which tmx
+which cw
 
 echo "-------------------------------"
 echo "All tests passed!"

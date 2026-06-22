@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Create a temporary git worktree, run Claude Code in it, then clean it up.
+
+set -euo pipefail
+
+if [[ $# -gt 1 ]]; then
+  echo "usage: bin/cw [worktree-name]" >&2
+  exit 2
+fi
+
+name="${1:-wt-$(date +%s)}"
+
+case "$name" in
+  ''|*/*|.*|-*|*-|*..*|*@{*|*[!A-Za-z0-9._-]*)
+    echo "error: invalid worktree name: $name" >&2
+    exit 1
+    ;;
+esac
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "error: claude command not found in PATH" >&2
+  exit 1
+fi
+
+root="$(git rev-parse --show-toplevel)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# claude-worktree-history.sh is an internal helper for cw, not a public command,
+# so it lives in libexec (sibling of bin) rather than on PATH.
+history_tool="$script_dir/../libexec/claude-worktree-history.sh"
+dir="$root/.claude/worktrees/$name"
+branch="worktree-$name"
+claude_status=0
+cleaned_up=0
+
+if [[ -e "$dir" ]]; then
+  echo "error: worktree path already exists: $dir" >&2
+  exit 1
+fi
+
+git worktree add "$dir" -b "$branch"
+
+cleanup() {
+  local status="$?"
+
+  if [[ "$cleaned_up" -eq 1 ]]; then
+    exit "$status"
+  fi
+  cleaned_up=1
+  trap - EXIT INT TERM
+
+  "$history_tool" finish "$root" "$dir" || true
+
+  git worktree remove --force "$dir" || true
+  git branch -D "$branch" >/dev/null 2>&1 || true
+
+  if [[ "$status" -ne 0 ]]; then
+    exit "$status"
+  fi
+  exit "$claude_status"
+}
+
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+"$history_tool" seed "$root" "$dir"
+
+(
+  cd "$dir"
+  CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1 claude
+) || claude_status="$?"
