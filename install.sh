@@ -64,6 +64,7 @@ dotfiles="
 .local/bin/gsync
 .local/bin/cw
 .local/libexec/claude-worktree-history.sh
+.local/libexec/claude-worktree-include.sh
 "
 
 mkdir -p ~/.local/bin ~/.local/libexec ~/.config/uv
