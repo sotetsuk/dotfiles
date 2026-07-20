@@ -2,7 +2,9 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $(basename "$0") <input_dir> <output_dir> [options]"
+  echo "Usage: $(basename "$0") <input_dir> [output_dir] [options]"
+  echo ""
+  echo "If output_dir is omitted, defaults to <input_dir>_compressed"
   echo ""
   echo "Options:"
   echo "  -c, --crf NUM      CRF value (default: 28, higher=smaller)"
@@ -18,9 +20,15 @@ FPS=15
 EXT="mov"
 
 # Parse positional args
-[[ $# -lt 2 ]] && { usage; }
-INPUT_DIR="$1"; shift
-OUTPUT_DIR="$1"; shift
+[[ $# -lt 1 ]] && { usage; }
+INPUT_DIR="${1%/}"; shift
+
+# Output dir is optional: default to <input_dir>_compressed
+if [[ $# -gt 0 && "$1" != -* ]]; then
+  OUTPUT_DIR="$1"; shift
+else
+  OUTPUT_DIR="${INPUT_DIR}_compressed"
+fi
 
 # Parse options
 while [[ $# -gt 0 ]]; do
