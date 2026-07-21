@@ -38,7 +38,15 @@ fi
 
 # install packages using brew
 # * ripgrep is required by kickstart.nvim
-brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy jq 2>/dev/null
+brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy jq fzf 2>/dev/null
+
+# clean up old git-based fzf installation (now managed by brew)
+if [[ -e ~/.fzf ]]; then
+  rm -rf ~/.fzf ~/.fzf.zsh ~/.fzf.bash
+  [[ -e ~/.zshrc ]] && sed -i.bak '/\.fzf\.zsh/d' ~/.zshrc && rm -f ~/.zshrc.bak
+  [[ -e ~/.bashrc ]] && sed -i.bak '/\.fzf\.bash/d' ~/.bashrc && rm -f ~/.bashrc.bak
+  echo "removed old git-based fzf (replaced by brew fzf)"
+fi
 
 echo "#############################################################################"
 echo "# Set dotfiles"
@@ -71,17 +79,6 @@ mkdir -p ~/.local/bin ~/.local/libexec ~/.config/uv
 for dotfile in ${dotfiles}; do
     ln -sfnv $(pwd)/${dotfile} ~/${dotfile}
 done
-
-echo "#############################################################################"
-echo "# fzf"
-echo "#############################################################################"
-
-if [[ ! -e ~/.fzf ]]; then
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install --all --key-bindings --completion --update-rc
-else
-    echo "passed [fzf]"
-fi
 
 echo "#############################################################################"
 echo "# iterm2 utilities"
