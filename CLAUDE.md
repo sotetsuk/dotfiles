@@ -32,9 +32,9 @@ The repository follows a modular approach:
    - `install.sh`: Main installation script that:
      - Installs oh-my-zsh
      - Installs Homebrew (if not present)
-     - Installs development tools via brew (tmux, gh, bat, neovim, ripgrep, etc.)
+     - Installs development tools via brew (tmux, gh, bat, neovim, ripgrep, fzf, etc.)
      - Symlinks dotfiles to home directory
-     - Sets up fzf, iterm2 utilities, uv, and language servers
+     - Sets up iterm2 utilities, uv, and language servers
 
 2. **Dotfiles Structure**:
    - Configuration files are kept in the repository root (`.vimrc`, `.gitconfig`, `.tmux.conf`, etc.)
