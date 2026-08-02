@@ -50,7 +50,12 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   fi
 
   mkdir -p "$(dirname "$dest")"
-  cp -R "$src" "$dest"
+  # Prefer APFS copy-on-write clones (macOS cp -c): near-instant and no extra
+  # disk for large includes like installed skills. Fall back to a plain copy
+  # on filesystems/platforms without clonefile support.
+  # Remove any partial result before falling back: cp -R into an existing
+  # directory would nest src inside it instead of replacing it.
+  cp -Rc "$src" "$dest" 2>/dev/null || { rm -rf "$dest"; cp -R "$src" "$dest"; }
   copied=$((copied + 1))
 done < "$include_file"
 

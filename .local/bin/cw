@@ -39,7 +39,9 @@ if [[ -e "$dir" ]]; then
   exit 1
 fi
 
-git worktree add "$dir" -b "$branch"
+# checkout.workers=0 parallelizes the checkout across all cores; the default
+# (1) checks out large repos sequentially and dominates cw startup time.
+git -c checkout.workers=0 worktree add "$dir" -b "$branch"
 
 cleanup() {
   local status="$?"
