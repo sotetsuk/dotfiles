@@ -113,3 +113,19 @@ eval "$(zoxide init zsh)"
 
 command -v fzf 1>/dev/null 2>&1 && source <(fzf --zsh)
 
+##########################################
+# Show a Codex update notice only after npm's min-release-age window has passed.
+##########################################
+codex() {
+  local codex_outdated codex_eligible_version
+
+  codex_outdated="$(npm outdated --global @openai/codex --parseable --long 2>/dev/null)"
+  if [[ -n "$codex_outdated" ]]; then
+    codex_eligible_version="${codex_outdated#*:@openai/codex@}"
+    codex_eligible_version="${codex_eligible_version%%:*}"
+    print -P "%F{yellow}Codex ${codex_eligible_version} is now eligible under npm min-release-age.%f"
+    print "Update with: npm install --global @openai/codex"
+  fi
+
+  command codex "$@"
+}
