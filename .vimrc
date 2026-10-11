@@ -43,7 +43,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
 call plug#begin('~/.vim/plugged')
 Plug 'sickill/vim-monokai', {'do': 'mkdir -p ~/.vim/colors && cp ~/.vim/plugged/vim-monokai/colors/* ~/.vim/colors/'}
-Plug 'github/copilot.vim'
+" Plug 'github/copilot.vim'
 call plug#end()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""
