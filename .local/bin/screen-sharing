@@ -1,0 +1,85 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: screen-sharing [on|off|status]
+
+Control macOS Screen Sharing. Defaults to status.
+  on      Enable Screen Sharing now and after reboot (requires sudo).
+  off     Disable Screen Sharing and stop existing sessions (requires sudo).
+  status  Print on/off based on whether the service is loaded (no sudo).
+
+Configure allowed users in System Settings > General > Sharing > Screen Sharing.
+EOF
+}
+
+if [[ $# -gt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+action=${1:-status}
+case "$action" in
+  -h|--help) usage; exit 0 ;;
+  on|off|status) ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+if [[ $(uname -s) != Darwin ]]; then
+  echo 'screen-sharing is only supported on macOS.' >&2
+  exit 1
+fi
+
+service=system/com.apple.screensharing
+plist=/System/Library/LaunchDaemons/com.apple.screensharing.plist
+
+is_loaded() {
+  local output result
+  if output=$(launchctl print "$service" 2>&1); then
+    return 0
+  else
+    result=$?
+  fi
+  # launchctl uses 113 for a service that is not registered in the domain.
+  if [[ $result -eq 113 ]]; then
+    return 1
+  fi
+  printf '%s\n' "$output" >&2
+  exit "$result"
+}
+
+as_root() {
+  if [[ $EUID -eq 0 ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
+case "$action" in
+  on)
+    as_root launchctl enable "$service"
+    if ! is_loaded; then
+      as_root launchctl bootstrap system "$plist"
+    fi
+    ;;
+  off)
+    as_root launchctl disable "$service"
+    if is_loaded; then
+      as_root launchctl bootout "$service"
+    fi
+    ;;
+esac
+
+# The service is socket-activated, so an idle process does not mean it is off.
+if is_loaded; then
+  current=on
+else
+  current=off
+fi
+if [[ $action != status && $action != "$current" ]]; then
+  echo "Screen Sharing did not switch $action (current: $current)." >&2
+  exit 1
+fi
+printf 'Screen Sharing: %s\n' "$current"

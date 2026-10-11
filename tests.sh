@@ -30,6 +30,8 @@ which it2ul
 # Original commands
 which tmx
 which cw
+which screen-sharing
+screen-sharing --help >/dev/null
 
 # cw internal helpers (installed into ~/.local/libexec)
 test -x ~/.local/libexec/claude-worktree-history.sh

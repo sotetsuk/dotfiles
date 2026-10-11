@@ -67,6 +67,7 @@ dotfiles="
 .local/bin/p
 .local/bin/i
 .local/bin/jiggle
+.local/bin/screen-sharing
 .local/bin/compress_videos
 .local/bin/m2h
 .local/bin/gsync
