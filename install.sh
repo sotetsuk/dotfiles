@@ -89,7 +89,11 @@ done
 if [[ ${CODESPACES:-} != true ]]; then
     ln -sfnv "$(pwd)/.gitconfig" "$HOME/.gitconfig"
     if [[ $(uname -s) == Darwin ]]; then
-        GIT_CONFIG_GLOBAL="$HOME/.gitconfig.local" gh auth setup-git
+        if gh auth status >/dev/null 2>&1; then
+            GIT_CONFIG_GLOBAL="$HOME/.gitconfig.local" gh auth setup-git
+        else
+            echo "skipped gh auth setup-git (run 'gh auth login' then re-run ./install.sh)"
+        fi
     fi
 fi
 
