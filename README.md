@@ -9,32 +9,11 @@ $ ./pre-install.sh  # only on ubuntu. require sudo.
 $ ./install.sh
 ```
 
-## Codex CLI
+## Git authentication (Mac)
 
-On macOS, `./install.sh` installs Codex CLI with `brew install --cask codex`.
-Run `codex` to start and follow the sign-in prompts.
-
-## Local Git authentication
-
-On a new Mac, install Homebrew and GitHub CLI, then authenticate before cloning:
-
-```sh
-brew install gh
-gh auth login
-git clone https://github.com/sotetsuk/dotfiles.git
-cd dotfiles
-./install.sh
-```
-
-During `gh auth login`, choose HTTPS and agree to authenticate Git. After
-linking `.gitconfig`, the Mac installer automatically restores Git's
-authentication settings in `~/.gitconfig.local`, which the shared `.gitconfig`
-includes. No additional command or second login is needed. The local file is
-not installed from this repository.
-
-In GitHub Codespaces (`CODESPACES=true`), the installer leaves `~/.gitconfig`
-untouched to preserve the supplied authentication. Shared Git settings are not
-installed there.
+Run `gh auth login` (choose HTTPS) and then `./install.sh`. The installer
+stores the credential helper in `~/.gitconfig.local`, which `.gitconfig`
+includes. In Codespaces, `~/.gitconfig` is left untouched.
 
 ## Goals
 
