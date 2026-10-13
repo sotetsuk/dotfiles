@@ -20,6 +20,11 @@ which xsel
 which pygmentize
 which jq
 
+if [[ $(uname -s) == Darwin ]]; then
+  which codex
+  codex --version
+fi
+
 # Installed w/o package manager
 which uv
 which fzf

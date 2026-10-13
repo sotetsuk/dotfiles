@@ -9,6 +9,11 @@ $ ./pre-install.sh  # only on ubuntu. require sudo.
 $ ./install.sh
 ```
 
+## Codex CLI
+
+On macOS, `./install.sh` installs Codex CLI with `brew install --cask codex`.
+Run `codex` to start and follow the sign-in prompts.
+
 ## Local Git authentication
 
 On a new Mac, install Homebrew and GitHub CLI, then authenticate before cloning:

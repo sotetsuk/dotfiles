@@ -40,6 +40,11 @@ fi
 # * ripgrep is required by kickstart.nvim
 brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy jq fzf 2>/dev/null
 
+# install Codex CLI using the Homebrew cask on macOS
+if [[ $(uname -s) == Darwin ]]; then
+  brew install --cask codex
+fi
+
 # clean up old git-based fzf installation (now managed by brew)
 if [[ -e ~/.fzf ]]; then
   rm -rf ~/.fzf ~/.fzf.zsh ~/.fzf.bash
