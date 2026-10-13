@@ -38,7 +38,7 @@ fi
 
 # install packages using brew
 # * ripgrep is required by kickstart.nvim
-brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy jq fzf 2>/dev/null
+brew install tmux gh bat xsel tree pygments wget aichat neovim ripgrep node zoxide diff-so-fancy jq fzf herdr 2>/dev/null
 
 # install Codex CLI using the Homebrew cask on macOS
 if [[ $(uname -s) == Darwin ]]; then

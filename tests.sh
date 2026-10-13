@@ -19,6 +19,7 @@ which gh
 which xsel
 which pygmentize
 which jq
+which herdr
 
 if [[ $(uname -s) == Darwin ]]; then
   which codex
