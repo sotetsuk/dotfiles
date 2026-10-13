@@ -54,7 +54,6 @@ echo "##########################################################################
 
 dotfiles="
 .vimrc
-.gitconfig
 .ideavimrc
 .tmux.conf
 .zshrc.common
@@ -80,6 +79,14 @@ mkdir -p ~/.local/bin ~/.local/libexec ~/.config/uv
 for dotfile in ${dotfiles}; do
     ln -sfnv $(pwd)/${dotfile} ~/${dotfile}
 done
+
+# Preserve the Git configuration supplied by Codespaces.
+if [[ ${CODESPACES:-} != true ]]; then
+    ln -sfnv "$(pwd)/.gitconfig" "$HOME/.gitconfig"
+    if [[ $(uname -s) == Darwin ]]; then
+        GIT_CONFIG_GLOBAL="$HOME/.gitconfig.local" gh auth setup-git
+    fi
+fi
 
 echo "#############################################################################"
 echo "# iterm2 utilities"

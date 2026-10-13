@@ -9,6 +9,28 @@ $ ./pre-install.sh  # only on ubuntu. require sudo.
 $ ./install.sh
 ```
 
+## Local Git authentication
+
+On a new Mac, install Homebrew and GitHub CLI, then authenticate before cloning:
+
+```sh
+brew install gh
+gh auth login
+git clone https://github.com/sotetsuk/dotfiles.git
+cd dotfiles
+./install.sh
+```
+
+During `gh auth login`, choose HTTPS and agree to authenticate Git. After
+linking `.gitconfig`, the Mac installer automatically restores Git's
+authentication settings in `~/.gitconfig.local`, which the shared `.gitconfig`
+includes. No additional command or second login is needed. The local file is
+not installed from this repository.
+
+In GitHub Codespaces (`CODESPACES=true`), the installer leaves `~/.gitconfig`
+untouched to preserve the supplied authentication. Shared Git settings are not
+installed there.
+
 ## Goals
 
 - **Maintanable**: Keep repository small and updated.
